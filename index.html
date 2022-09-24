@@ -1,0 +1,173 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.5/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+<script>
+    const setEvents = () => {
+        const arrowRight = document.querySelector("#arrowRight");
+        const arrowLeft = document.querySelector("#arrowLeft");
+
+        const sportcar = document.querySelector("#sportcar");
+        const pickup = document.querySelector("#pickup");
+        const car = document.querySelector("#car");
+
+        const sportcarBtn = document.querySelector("#sportcarBtn");
+        const pickupBtn = document.querySelector("#pickupBtn");
+        const carBtn = document.querySelector("#carBtn");
+
+        arrowRight.addEventListener('click', function (evt) {
+            console.log("click event - arrowRight");
+            carsRotationPlus();
+
+        });
+
+        arrowLeft.addEventListener('click', function (evt) {
+            console.log("click event - arrowLeft");
+            carsRotationMinus();
+        });
+
+        sportcar.addEventListener('click', function (evt) {
+            console.log("click event - sportcar");
+            sportcarBtn.setAttribute("visible", !sportcarBtn.getAttribute("visible"));
+            sportcarBtn.emit("appearanceScl");
+        });
+
+        pickup.addEventListener('click', function (evt) {
+            console.log("click event - pickup");
+            pickupBtn.setAttribute("visible", !pickupBtn.getAttribute("visible"));
+            pickupBtn.emit("appearanceScl");
+        });
+        car.addEventListener('click', function (evt) {
+            console.log("click event - car");
+            carBtn.setAttribute("visible", !carBtn.getAttribute("visible"));
+            carBtn.emit("appearanceScl");
+        });
+    }
+    const carsRotationPlus = () => {
+        blockUI();
+        hideAllStamps();
+        const cars = document.querySelector("#cars");
+        const startY = THREE.Math.radToDeg(cars.object3D.rotation.y);
+        console.log("start rotation from " + startY);
+        let y = THREE.Math.radToDeg(cars.object3D.rotation.y);
+        const id = setInterval(() => {
+            y += 0.6;
+            if (y >= startY + 120) {
+                clearInterval(id);
+                allowUI();
+            }
+
+            cars.setAttribute("rotation", "0 " + y + "0");
+        }, 0.1);
+
+
+    }
+    const carsRotationMinus = () => {
+        blockUI();
+        hideAllStamps();
+        const cars = document.querySelector("#cars");
+        const startY = THREE.Math.radToDeg(cars.object3D.rotation.y);
+        console.log("start rotation from " + startY);
+        let y = startY;
+        const id = setInterval(() => {
+            y -=0.6;
+            if (y <= startY - 120) {
+                clearInterval(id);
+                allowUI();
+            }
+            cars.setAttribute("rotation", "0 " + y + "0");
+
+        }, 0.1);
+
+    }
+    window.onload = function () {
+        setEvents();
+    };
+
+    const blockUI = () => {
+        console.log("block rotation");
+        const camera = document.querySelector("#camera");
+        camera.setAttribute("raycaster", "far: 10000; objects: .dadasdasad");
+    }
+    const allowUI = () => {
+        console.log("allow rotation");
+        const camera = document.querySelector("#camera");
+        camera.setAttribute("raycaster", "far: 10000; objects: .clickable");
+    }
+    const hideAllStamps = () => {
+        const sportcarImg = document.querySelector("#sportcarBtn");
+        const pickupImg = document.querySelector("#pickupBtn");
+        const carImg = document.querySelector("#carBtn");
+        sportcarImg.setAttribute("visible", false);
+        pickupImg.setAttribute("visible", false);
+        carImg.setAttribute("visible", false);
+    }
+</script>
+<body>
+<a-scene
+        mindar-image="imageTargetSrc: targets.mind; showStats: false; uiScanning: #example-scanning-overlay; filterMinCF:0.0001; filterBeta: 0.001;"
+        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights"
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-camera id="camera" position="0 0 12" look-controls="enabled: true" cursor="fuse: false; rayOrigin: mouse;"
+              raycaster="far: 10000; objects: .clickable">
+    </a-camera>
+
+    <a-assets>
+        <a-asset-item id="sportcarModel" src="models/sportcar.glb"></a-asset-item>
+        <a-asset-item id="pickupModel" src="models/pickup.glb"></a-asset-item>
+        <a-asset-item id="compact" src="models/compact.glb"></a-asset-item>
+
+        <img id="arrow" src="icons/arrow.png"/>
+        <img id="sportcarImg" src="icons/backgroundSport.png"/>
+        <img id="pickupImg" src="icons/backgroundPickup.png"/>
+        <img id="carImg" src="icons/backgroundCar.png"/>
+    </a-assets>
+    <a-entity id="mytarget" mytarget mindar-image-target="targetIndex: 0">
+
+        <a-entity id="container" rotation="90 0 0" scale="0.2 0.2 0.2">
+            <a-entity id="cars">
+
+                <a-entity id="sportcar" class="clickable" gltf-model="#sportcarModel" position="0  0 5"
+                          rotation="0 0 0">
+                    <a-image visible="false" id="sportcarBtn"
+                             material="side:double; opacity:0.99; alpha-test:0.5;" src="#sportcarImg"
+                             position="0 3 0" rotation="-45 0 0" height="2" width="2"
+                             animation__appearanceScl="property: scale;from:0.1 0.1 0.1; to: 1 1 1; startEvents: appearanceScl; easing: easeInOutQuad;"
+                    ></a-image>
+                </a-entity>
+                <a-entity id="pickup" class="clickable" gltf-model="#pickupModel" position="4.26  0 -2.51"
+                          rotation="0 120 0">
+                    <a-image visible="false" id="pickupBtn"
+                             material="side:double; opacity:0.99; alpha-test:0.5;" src="#pickupImg"
+                             position="0 3 0" rotation="-45 0 0" height="2" width="2"
+                             animation__appearanceScl=" property: scale;from:0.1 0.1 0.1; to: 1 1 1; startEvents: appearanceScl; easing: easeInOutQuad;"
+                    ></a-image>
+                </a-entity>
+                <a-entity id="car" class="clickable" gltf-model="#compact" position="-4.32  0 -2.34"
+                          rotation="0 240 0 0">
+                    <a-image visible="false" id="carBtn"
+                             material="side:double; opacity:0.99; alpha-test:0.5;" src="#carImg"
+                             position="0 3 0" rotation="-45 0 0" height="2" width="2"
+                             animation__appearanceScl=" property: scale;from:0.1 0.1 0.1; to: 1 1 1; startEvents: appearanceScl; easing: easeInOutQuad;"
+                    ></a-image>
+                </a-entity>
+
+            </a-entity>
+            <a-light type="point" intensity="2.3" position="-5 3.5 6.48" color="#fff"></a-light>
+            <a-light type="directional" intensity="2.9" position="5 5 12" color="#fff"></a-light>
+            <a-plane id="arrowRight" visible="true" class="clickable"
+                     material="side:double; opacity:0.99; alpha-test:0.5;" src="#arrow"
+                     position="5 5 0" rotation="-45 0 -90" height="3" width="3"></a-plane>
+            <a-plane id="arrowLeft" visible="true" class="clickable"
+                     material="side:double; opacity:0.99; alpha-test:0.5;" src="#arrow"
+                     position="-5 5 0" rotation="-45 0 90" height="3" width="3"></a-plane>
+
+        </a-entity>
+    </a-entity>
+</a-scene>
+</body>
+</html>
